@@ -1,5 +1,5 @@
 # guition-display-complete.yaml
-# 🎉 VOLLSTÄNDIGE VERSION mit allen 3 Seiten!
+# 🎉 VOLLSTÄNDIGE VERSION mit allen 3 Seiten + Navigation!
 # Alle deine Entity-IDs sind drin
 
 esphome:
@@ -107,27 +107,27 @@ font:
   - file: "gfonts://Roboto"
     id: roboto_12
     size: 12
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto"
     id: roboto_16
     size: 16
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto"
     id: roboto_20
     size: 20
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto@700"
     id: roboto_bold_24
     size: 24
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto@700"
     id: roboto_bold_32
     size: 32
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
 
 # === COMMON SENSOREN ===
 text_sensor:
@@ -159,7 +159,8 @@ text_sensor:
     on_value:
       - lvgl.label.update:
           id: weather_condition_label
-          text: !lambda return x.c_str();
+          text: !lambda |-
+            return x.c_str();
 
 sensor:
   - platform: wifi_signal
@@ -197,7 +198,8 @@ sensor:
     on_value:
       - lvgl.label.update:
           id: wz_current_label
-          text: !lambda return str_sprintf("%.1f C", x);
+          text: !lambda |-
+            return str_sprintf("%.1f C", x);
   
   - platform: homeassistant
     entity_id: climate.wohnzimmer_thermostat
@@ -207,7 +209,8 @@ sensor:
     on_value:
       - lvgl.label.update:
           id: wz_target_label
-          text: !lambda return str_sprintf("Ziel: %.1f C", x);
+          text: !lambda |-
+            return str_sprintf("Ziel: %.1f C", x);
   
   - platform: homeassistant
     entity_id: climate.schlafzimmer_thermostat
@@ -217,7 +220,8 @@ sensor:
     on_value:
       - lvgl.label.update:
           id: sz_current_label
-          text: !lambda return str_sprintf("%.1f C", x);
+          text: !lambda |-
+            return str_sprintf("%.1f C", x);
   
   - platform: homeassistant
     entity_id: climate.schlafzimmer_thermostat
@@ -227,7 +231,8 @@ sensor:
     on_value:
       - lvgl.label.update:
           id: sz_target_label
-          text: !lambda return str_sprintf("Ziel: %.1f C", x);
+          text: !lambda |-
+            return str_sprintf("Ziel: %.1f C", x);
   
   # Wetter - Temperatur
   - platform: homeassistant
@@ -238,7 +243,8 @@ sensor:
     on_value:
       - lvgl.label.update:
           id: weather_temp_label
-          text: !lambda return str_sprintf("%.0f C", x);
+          text: !lambda |-
+            return str_sprintf("%.0f C", x);
 
 # === BINARY SENSOREN (Lichter) ===
 binary_sensor:
@@ -343,7 +349,7 @@ lvgl:
   default_font: roboto_16
   buffer_size: 25%
   
-  # Header
+  # Header mit Navigation
   top_layer:
     widgets:
       - obj:
@@ -356,23 +362,65 @@ lvgl:
           border_width: 0
           pad_all: 5
           widgets:
+            # Zurück-Button (links)
+            - button:
+                id: btn_nav_prev
+                x: 5
+                y: 5
+                width: 50
+                height: 30
+                bg_color: 0x333333
+                radius: 5
+                on_click:
+                  - lvgl.page.previous:
+                widgets:
+                  - label:
+                      text: "<"
+                      text_font: roboto_20
+                      align: CENTER
+            
+            # Uhrzeit
             - label:
                 id: time_label
-                x: 10
+                x: 65
                 y: 5
                 text_font: roboto_bold_24
                 text: "00:00"
+            
+            # Seitentitel
             - label:
                 id: page_title
-                align: CENTER
+                x: 180
+                y: 10
                 text_font: roboto_20
+                text_color: 0xAAAAAA
                 text: "Lampen"
+            
+            # WiFi Signal
             - label:
                 id: wifi_label
-                x: 430
-                y: 5
+                x: 365
+                y: 10
                 text_font: roboto_16
+                text_color: 0xAAAAAA
                 text: "..."
+            
+            # Vorwärts-Button (rechts)
+            - button:
+                id: btn_nav_next
+                x: 425
+                y: 5
+                width: 50
+                height: 30
+                bg_color: 0x333333
+                radius: 5
+                on_click:
+                  - lvgl.page.next:
+                widgets:
+                  - label:
+                      text: ">"
+                      text_font: roboto_20
+                      align: CENTER
   
   # === SEITEN ===
   pages:
