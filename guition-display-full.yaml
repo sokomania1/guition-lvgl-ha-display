@@ -1,6 +1,5 @@
 # guition-display-full.yaml
 # VOLLSTÄNDIGE VERSION mit allen Seiten
-# Basiert auf funktionierender -simple.yaml
 
 esphome:
   name: guition-display
@@ -102,26 +101,25 @@ logger:
     component: ERROR
     lvgl: WARN
 
-# === FONTS (alle benötigten) ===
+# === FONTS (vereinfacht - keine Emojis wegen Duplikat-Problem) ===
 font:
   - file: "gfonts://Roboto"
     id: roboto_16
     size: 16
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
   
   - file: "gfonts://Roboto"
     id: roboto_20
     size: 20
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
   
   - file: "gfonts://Roboto@700"
     id: roboto_bold_24
     size: 24
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️☀️🌙❄️"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
 
 # === SENSOREN ===
 text_sensor:
-  # Zeit
   - platform: template
     id: current_time_badge
     update_interval: 1s
@@ -129,14 +127,12 @@ text_sensor:
       auto time = id(ha_time).now();
       return str_sprintf("%02d:%02d", time.hour, time.minute);
   
-  # WiFi
   - platform: wifi_info
     ip_address:
       id: ip_address
       entity_category: diagnostic
 
 sensor:
-  # WiFi Signal
   - platform: wifi_signal
     id: wifi_signal_db
     update_interval: 60s
@@ -198,17 +194,16 @@ lvgl:
                 id: page_title
                 align: CENTER
                 text_font: roboto_20
-                text: "💡 Lampen"
+                text: "Lampen"
             - label:
                 id: wifi_label
                 x: 430
                 y: 5
                 text_font: roboto_16
-                text: "•••"
+                text: "..."
   
   # Seiten
   pages:
-    # Lampen-Seite (vereinfacht)
     - id: page_lights
       bg_color: 0x000000
       pad_all: 0
@@ -232,11 +227,11 @@ lvgl:
               - label:
                   align: CENTER
                   text_font: roboto_bold_24
-                  text: "☼ Alle Lichter"
+                  text: "Alle Lichter"
       on_load:
         - lvgl.label.update:
             id: page_title
-            text: "💡 Lampen"
+            text: "Lampen"
 
 # Header Update
 interval:
@@ -249,7 +244,7 @@ interval:
           id: wifi_label
           text: !lambda |-
             int strength = (int)id(wifi_strength).state;
-            if (strength > 75) return "███";
-            if (strength > 50) return "██░";
-            if (strength > 25) return "█░░";
-            return "░░░";
+            if (strength > 75) return "***";
+            if (strength > 50) return "** ";
+            if (strength > 25) return "*  ";
+            return "   ";
