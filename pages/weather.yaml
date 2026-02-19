@@ -1,1 +1,296 @@
-# weather.yaml - copied from esphome-guition-display
+# weather.yaml
+# Wetterseite für Freudenstadt
+
+# Home Assistant Sensoren für Wetter
+text_sensor:
+  - platform: homeassistant
+    entity_id: weather.freudenstadt
+    id: weather_state
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_weather_state
+          text: !lambda |-
+            std::string state = x;
+            if (state == "clear-night") return "🌙 Klar";
+            if (state == "cloudy") return "☁️ Bewölkt";
+            if (state == "exceptional") return "⚠️ Ausnahme";
+            if (state == "fog") return "🌫️ Nebel";
+            if (state == "hail") return "🧧 Hagel";
+            if (state == "lightning") return "⛈️ Gewitter";
+            if (state == "lightning-rainy") return "⛈️ Gewitter";
+            if (state == "partlycloudy") return "⛅ Teilweise";
+            if (state == "pouring") return "🌧️ Starkregen";
+            if (state == "rainy") return "🌧️ Regen";
+            if (state == "snowy") return "❄️ Schnee";
+            if (state == "snowy-rainy") return "🌨️ Schneeregen";
+            if (state == "sunny") return "☀️ Sonnig";
+            if (state == "windy") return "🌬️ Windig";
+            if (state == "windy-variant") return "🌬️ Windig";
+            return state.c_str();
+
+# Alle Sensoren in einem Block
+sensor:
+  # Aktuelle Temperatur
+  - platform: homeassistant
+    entity_id: weather.freudenstadt
+    attribute: temperature
+    id: weather_temperature
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_weather_temp
+          text: !lambda |-
+            return str_sprintf("%.1f°C", x);
+  
+  # Luftfeuchtigkeit
+  - platform: homeassistant
+    entity_id: sensor.freudenstadt_luftfeuchtigkeit
+    id: weather_humidity
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_weather_humidity
+          text: !lambda |-
+            return str_sprintf("💧 %.0f%%", x);
+  
+  # Windgeschwindigkeit
+  - platform: homeassistant
+    entity_id: sensor.freudenstadt_windgeschwindigkeit
+    id: weather_wind_speed
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_weather_wind
+          text: !lambda |-
+            return str_sprintf("🌬️ %.1f km/h", x);
+  
+  # Niederschlagswahrscheinlichkeit
+  - platform: homeassistant
+    entity_id: sensor.freudenstadt_niederschlagswahrscheinlichkeit
+    id: weather_precipitation
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_weather_precipitation
+          text: !lambda |-
+            return str_sprintf("☔ %.0f%%", x);
+  
+  # Außentemperatur vom SNF Sensor
+  - platform: homeassistant
+    entity_id: sensor.snf_draussen_temperature
+    id: outdoor_temperature
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_outdoor_temp
+          text: !lambda |-
+            return str_sprintf("Draußen: %.1f°C", x);
+  
+  # Außenluftfeuchtigkeit
+  - platform: homeassistant
+    entity_id: sensor.snf_draussen_humidity
+    id: outdoor_humidity
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_outdoor_humidity
+          text: !lambda |-
+            return str_sprintf("💧 %.0f%%", x);
+  
+  # Innentemperaturen für Vergleich
+  - platform: homeassistant
+    entity_id: sensor.sn_wohnzimmer_temperatur_temperature
+    id: indoor_wohnzimmer
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_indoor_wohnzimmer
+          text: !lambda |-
+            return str_sprintf("%.1f°C", x);
+  
+  - platform: homeassistant
+    entity_id: sensor.snf_markus_temperature
+    id: indoor_markus
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_indoor_markus
+          text: !lambda |-
+            return str_sprintf("%.1f°C", x);
+  
+  - platform: homeassistant
+    entity_id: sensor.snf_schlafzimmer_temperature
+    id: indoor_schlafzimmer
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: label_indoor_schlafzimmer
+          text: !lambda |-
+            return str_sprintf("%.1f°C", x);
+
+# LVGL Seite
+lvgl:
+  pages:
+    - id: page_weather
+      skip: false
+      layout:
+        type: flex
+        flex_flow: COLUMN
+      bg_color: 0x000000
+      pad_all: 5
+      pad_top: 50
+      widgets:
+        # Aktuelles Wetter
+        - obj:
+            width: 100%
+            height: 130
+            bg_color: 0x0a2540
+            border_color: 0x1a4570
+            border_width: 2
+            radius: 10
+            pad_all: 15
+            widgets:
+              - label:
+                  align: TOP_LEFT
+                  text_font: roboto_bold_24
+                  text_color: 0xFFFFFF
+                  text: "Freudenstadt"
+              
+              - label:
+                  id: label_weather_temp
+                  align: TOP_RIGHT
+                  text_font: roboto_bold_32
+                  text_color: 0xFFDD44
+                  text: "--.-°C"
+              
+              - label:
+                  id: label_weather_state
+                  x: 15
+                  y: 40
+                  text_font: roboto_bold_24
+                  text_color: 0xDDDDDD
+                  text: "☀️ Laden..."
+              
+              - label:
+                  id: label_weather_humidity
+                  x: 15
+                  y: 75
+                  text_font: roboto_16
+                  text_color: 0xAAAAAA
+                  text: "💧 --%"
+              
+              - label:
+                  id: label_weather_wind
+                  x: 120
+                  y: 75
+                  text_font: roboto_16
+                  text_color: 0xAAAAAA
+                  text: "🌬️ -- km/h"
+              
+              - label:
+                  id: label_weather_precipitation
+                  x: 280
+                  y: 75
+                  text_font: roboto_16
+                  text_color: 0xAAAAAA
+                  text: "☔ --%"
+              
+              - label:
+                  x: 15
+                  y: 100
+                  text_font: roboto_16
+                  text_color: 0x888888
+                  text: "Wettervorhersage"
+        
+        # Eigener Sensor Draußen
+        - obj:
+            width: 100%
+            height: 70
+            bg_color: 0x1a1a1a
+            border_color: 0x444444
+            border_width: 2
+            radius: 10
+            pad_all: 10
+            widgets:
+              - label:
+                  align: TOP_LEFT
+                  text_font: roboto_bold_24
+                  text_color: 0xFFFFFF
+                  text: "Eigener Sensor"
+              
+              - label:
+                  id: label_outdoor_temp
+                  x: 15
+                  y: 35
+                  text_font: roboto_20
+                  text_color: 0xFF9944
+                  text: "Draußen: --.-°C"
+              
+              - label:
+                  id: label_outdoor_humidity
+                  align: TOP_RIGHT
+                  y: 35
+                  text_font: roboto_20
+                  text_color: 0x88CCFF
+                  text: "💧 --%"
+        
+        # Temperatur-Vergleich Innen
+        - obj:
+            width: 100%
+            height: 95
+            bg_color: 0x1a1a1a
+            border_color: 0x444444
+            border_width: 2
+            radius: 10
+            pad_all: 10
+            layout:
+              type: GRID
+              grid_columns: [150, 150, 150]
+              grid_rows: [25, 25, 25]
+              pad_column: 5
+              pad_row: 5
+            widgets:
+              # Reihe 1 - Überschrift
+              - label:
+                  text_font: roboto_16
+                  text_color: 0xAAAAAA
+                  text: "Wohnzimmer:"
+              - label:
+                  id: label_indoor_wohnzimmer
+                  text_font: roboto_16
+                  text_color: 0xFFAA44
+                  text: "--.-°C"
+              - label:
+                  text: ""
+              
+              # Reihe 2
+              - label:
+                  text_font: roboto_16
+                  text_color: 0xAAAAAA
+                  text: "Büro Markus:"
+              - label:
+                  id: label_indoor_markus
+                  text_font: roboto_16
+                  text_color: 0xFFAA44
+                  text: "--.-°C"
+              - label:
+                  text: ""
+              
+              # Reihe 3
+              - label:
+                  text_font: roboto_16
+                  text_color: 0xAAAAAA
+                  text: "Schlafzimmer:"
+              - label:
+                  id: label_indoor_schlafzimmer
+                  text_font: roboto_16
+                  text_color: 0xFFAA44
+                  text: "--.-°C"
+              - label:
+                  text: ""
+      
+      on_load:
+        - lvgl.label.update:
+            id: page_title
+            text: "☁️ Wetter"
