@@ -8,7 +8,6 @@ binary_sensor:
   - platform: homeassistant
     id: light_wohnzimmer_state
     entity_id: light.wohnzimmer  # <-- Ändere diese Entity-ID!
-    publish_initial_state: true
     on_state:
       then:
         - lvgl.widget.update:
@@ -20,7 +19,6 @@ binary_sensor:
   - platform: homeassistant
     id: light_kueche_state
     entity_id: light.kueche  # <-- Ändere diese Entity-ID!
-    publish_initial_state: true
     on_state:
       then:
         - lvgl.widget.update:
@@ -32,7 +30,6 @@ binary_sensor:
   - platform: homeassistant
     id: light_schlafzimmer_state
     entity_id: light.schlafzimmer  # <-- Ändere diese Entity-ID!
-    publish_initial_state: true
     on_state:
       then:
         - lvgl.widget.update:
@@ -51,7 +48,7 @@ lvgl:
             x: 10
             y: 10
             text: "Lichter"
-            text_font: roboto_16
+            text_font: roboto_20
         
         # Wohnzimmer Licht Button
         - button:
@@ -64,7 +61,8 @@ lvgl:
             widgets:
               - label:
                   align: CENTER
-                  text: "\U000F0335 Wohnzimmer"  # MDI Lightbulb Icon
+                  text: "Wohnzimmer"
+                  text_font: roboto_16
             on_click:
               - homeassistant.action:
                   action: light.toggle
@@ -82,7 +80,8 @@ lvgl:
             widgets:
               - label:
                   align: CENTER
-                  text: "\U000F0335 Küche"  # MDI Lightbulb Icon
+                  text: "Küche"
+                  text_font: roboto_16
             on_click:
               - homeassistant.action:
                   action: light.toggle
@@ -100,7 +99,8 @@ lvgl:
             widgets:
               - label:
                   align: CENTER
-                  text: "\U000F0335 Schlafzimmer"  # MDI Lightbulb Icon
+                  text: "Schlafzimmer"
+                  text_font: roboto_16
             on_click:
               - homeassistant.action:
                   action: light.toggle
@@ -117,7 +117,8 @@ lvgl:
             widgets:
               - label:
                   align: CENTER
-                  text: "\U000F0769 Alle AUS"  # MDI Lightbulb Off Icon
+                  text: "Alle AUS"
+                  text_font: roboto_16
             on_click:
               - homeassistant.action:
                   action: light.turn_off
