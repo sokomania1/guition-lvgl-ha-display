@@ -1,126 +1,336 @@
-# pages/lights.yaml
-# Beispiel-Seite für Licht-Steuerung
-# Passe die entity_id an deine Home Assistant Entities an!
+# lights.yaml
+# Lampenseite mit erweiterten Steuerelementen
 
-# Home Assistant Sensoren für Lichter
+# Home Assistant Sensoren für Lampen
+sensor:
+  # Alle Lichter
+  - platform: homeassistant
+    entity_id: light.alle_lichter_2
+    attribute: brightness
+    id: alle_lichter_brightness
+    internal: true
+    on_value:
+      - lvgl.slider.update:
+          id: slider_alle_lichter
+          value: !lambda return x / 2.55;
+
 binary_sensor:
-  # Beispiel: Wohnzimmer Licht
   - platform: homeassistant
-    id: light_wohnzimmer_state
-    entity_id: light.wohnzimmer  # <-- Ändere diese Entity-ID!
+    entity_id: light.alle_lichter_2
+    id: alle_lichter_state
+    internal: true
     on_state:
-      then:
-        - lvgl.widget.update:
-            id: btn_light_wohnzimmer
-            state:
-              checked: !lambda return x;
+      - lvgl.widget.update:
+          id: btn_alle_lichter
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
   
-  # Beispiel: Küche Licht
   - platform: homeassistant
-    id: light_kueche_state
-    entity_id: light.kueche  # <-- Ändere diese Entity-ID!
+    entity_id: light.stehlampe_bibi
+    id: stehlampe_bibi_state
+    internal: true
     on_state:
-      then:
-        - lvgl.widget.update:
-            id: btn_light_kueche
-            state:
-              checked: !lambda return x;
+      - lvgl.widget.update:
+          id: btn_stehlampe_bibi
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
   
-  # Beispiel: Schlafzimmer Licht
   - platform: homeassistant
-    id: light_schlafzimmer_state
-    entity_id: light.schlafzimmer  # <-- Ändere diese Entity-ID!
+    entity_id: light.garderobe_licht
+    id: garderobe_state
+    internal: true
     on_state:
-      then:
-        - lvgl.widget.update:
-            id: btn_light_schlafzimmer
-            state:
-              checked: !lambda return x;
+      - lvgl.widget.update:
+          id: btn_garderobe
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.licht_wohnzimmerschrank
+    id: wohnzimmer_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_wohnzimmer
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.esszimmer_licht
+    id: esszimmer_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_esszimmer
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.kuchen_unterlicht
+    id: kueche_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_kueche
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.kajplats_e27_ws_globe_470lm
+    id: flur_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_flur
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.licht_aktenschrank_markus
+    id: aktenschrank_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_aktenschrank
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.bibis_ecke_licht
+    id: bibis_ecke_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_bibis_ecke
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
 
 # LVGL Seite
 lvgl:
   pages:
     - id: page_lights
+      skip: false
+      layout:
+        type: flex
+        flex_flow: COLUMN
+      bg_color: 0x000000
+      pad_all: 0
+      pad_top: 45
       widgets:
-        # Titel
-        - label:
-            id: label_lights_title
-            x: 10
-            y: 10
-            text: "Lichter"
-            text_font: roboto_20
-        
-        # Wohnzimmer Licht Button
-        - button:
-            id: btn_light_wohnzimmer
-            x: 10
-            y: 50
-            width: 220
-            height: 80
-            checkable: true
+        # Alle Lichter Gruppe (ganze Breite)
+        - obj:
+            width: 100%
+            height: 90
+            pad_all: 5
+            bg_color: 0x000000
+            border_width: 0
             widgets:
-              - label:
-                  align: CENTER
-                  text: "Wohnzimmer"
-                  text_font: roboto_16
-            on_click:
-              - homeassistant.action:
-                  action: light.toggle
-                  data:
-                    entity_id: light.wohnzimmer  # <-- Ändere diese Entity-ID!
+              - obj:
+                  id: btn_alle_lichter
+                  width: 100%
+                  height: 80
+                  bg_color: 0x333333
+                  border_color: 0x666666
+                  border_width: 2
+                  radius: 10
+                  pad_all: 10
+                  clickable: true
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.alle_lichter_2
+                  widgets:
+                    - label:
+                        align: TOP_LEFT
+                        text_font: roboto_bold_24
+                        text_color: 0xFFFFFF
+                        text: "☼ Alle Lichter"
+                    - slider:
+                        id: slider_alle_lichter
+                        width: 90%
+                        height: 20
+                        align: BOTTOM_MID
+                        y: -5
+                        min_value: 0
+                        max_value: 100
+                        value: 50
+                        on_release:
+                          - homeassistant.service:
+                              service: light.turn_on
+                              data:
+                                entity_id: light.alle_lichter_2
+                                brightness: !lambda return int(x * 2.55);
         
-        # Küche Licht Button
-        - button:
-            id: btn_light_kueche
-            x: 250
-            y: 50
-            width: 220
-            height: 80
-            checkable: true
+        # Grid für einzelne Lampen (2 Spalten)
+        - obj:
+            width: 100%
+            height: 175
+            pad_all: 5
+            bg_color: 0x000000
+            border_width: 0
+            layout:
+              type: GRID
+              grid_columns: [230, 230]
+              grid_rows: [80, 80]
+              pad_column: 10
+              pad_row: 10
             widgets:
-              - label:
-                  align: CENTER
-                  text: "Küche"
-                  text_font: roboto_16
-            on_click:
-              - homeassistant.action:
-                  action: light.toggle
-                  data:
-                    entity_id: light.kueche  # <-- Ändere diese Entity-ID!
+              # Reihe 1
+              - button:
+                  id: btn_stehlampe_bibi
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.stehlampe_bibi
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_20
+                        text: "Stehlampe\nBibi"
+              
+              - button:
+                  id: btn_garderobe
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.garderobe_licht
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_20
+                        text: "Garderobe"
+              
+              # Reihe 2
+              - button:
+                  id: btn_wohnzimmer
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.licht_wohnzimmerschrank
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_20
+                        text: "Wohnzimmer\nSchrank"
+              
+              - button:
+                  id: btn_esszimmer
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.esszimmer_licht
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_20
+                        text: "Esszimmer"
         
-        # Schlafzimmer Licht Button
-        - button:
-            id: btn_light_schlafzimmer
-            x: 10
-            y: 150
-            width: 220
-            height: 80
-            checkable: true
+        # Zweite Grid-Reihe
+        - obj:
+            width: 100%
+            height: 175
+            pad_all: 5
+            bg_color: 0x000000
+            border_width: 0
+            layout:
+              type: GRID
+              grid_columns: [150, 150, 150]
+              grid_rows: [80, 80]
+              pad_column: 5
+              pad_row: 10
             widgets:
-              - label:
-                  align: CENTER
-                  text: "Schlafzimmer"
-                  text_font: roboto_16
-            on_click:
-              - homeassistant.action:
-                  action: light.toggle
-                  data:
-                    entity_id: light.schlafzimmer  # <-- Ändere diese Entity-ID!
-        
-        # Alle Lichter AUS Button
-        - button:
-            id: btn_all_lights_off
-            x: 250
-            y: 150
-            width: 220
-            height: 80
-            widgets:
-              - label:
-                  align: CENTER
-                  text: "Alle AUS"
-                  text_font: roboto_16
-            on_click:
-              - homeassistant.action:
-                  action: light.turn_off
-                  data:
-                    entity_id: all  # Schaltet alle Lichter aus
+              # Reihe 1
+              - button:
+                  id: btn_kueche
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.kuchen_unterlicht
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_16
+                        text: "Küche\nUnter"
+              
+              - button:
+                  id: btn_flur
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.kajplats_e27_ws_globe_470lm
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_16
+                        text: "Flur\nLicht"
+              
+              - button:
+                  id: btn_aktenschrank
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.licht_aktenschrank_markus
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_16
+                        text: "Akten\nMarkus"
+              
+              # Reihe 2
+              - button:
+                  id: btn_bibis_ecke
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.bibis_ecke_licht
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_16
+                        text: "Bibis\nEcke"
+      
+      on_load:
+        - lvgl.label.update:
+            id: page_title
+            text: "💡 Lampen"
