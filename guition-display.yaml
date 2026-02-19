@@ -1,6 +1,5 @@
 # guition-display.yaml
 # Monolithische Konfiguration (ESPHome 2026.2.0 kompatibel)
-# Keine packages - alle direkt integriert
 
 esphome:
   name: guition-display
@@ -121,14 +120,15 @@ logger:
 
 # === Fonts & LVGL ===
 font: !include layouts/fonts.yaml
+
+# LVGL Base (Header + Theme)
 lvgl: !include layouts/lvgl_complete.yaml
 
-# === Sensoren (ALLE in einem Block!) ===
+# === Common Sensoren ===
 binary_sensor:
   - platform: status
     name: "Status"
     entity_category: diagnostic
-  # Seiten-Sensoren werden in pages/*.yaml eingebunden (Teil von lvgl)
 
 sensor:
   - id: wifi_signal_db
@@ -197,3 +197,16 @@ interval:
             if (strength > 50) return "██░";
             if (strength > 25) return "█░░";
             return "░░░";
+
+# === SEITEN mit Sensoren & LVGL ===
+# Jede Seite definiert ihre eigenen sensor/binary_sensor + lvgl.pages
+binary_sensor: !include pages/lights_binary.yaml
+sensor: !include pages/lights_sensor.yaml
+lvgl: !include pages/lights_lvgl.yaml
+
+binary_sensor: !include pages/heating_binary.yaml
+sensor: !include pages/heating_sensor.yaml
+lvgl: !include pages/heating_lvgl.yaml
+
+text_sensor: !include pages/weather_text.yaml
+lvgl: !include pages/weather_lvgl.yaml
