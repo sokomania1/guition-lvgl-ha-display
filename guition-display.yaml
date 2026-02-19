@@ -1,6 +1,5 @@
 # guition-display.yaml
 # Hauptkonfiguration für Guition ESP32-S3 3.5" Display
-# Zusammengeführt aus esp_lvg_eigen und esphome-guition-display
 
 esphome:
   name: guition-display
@@ -11,15 +10,12 @@ esphome:
   on_boot:
     priority: 600
     then:
-      # Backlight einschalten
       - light.turn_on:
           id: backlight
           brightness: 80%
-      # Startseite laden
       - delay: 2s
       - lvgl.page.show: ${home_page}
 
-# ESP32 Platform
 esp32:
   board: esp32-s3-devkitc-1
   variant: esp32s3
@@ -40,15 +36,20 @@ psram:
 substitutions:
   home_page: "page_lights"
 
-# Includes mit << Merge-Operator (funktioniert mit allen ESPHome-Versionen)
-<<: !include devices/JC3248W535.yaml
-<<: !include common.yaml
-<<: !include layouts/480x320.yaml
-<<: !include pages/lights.yaml
-<<: !include pages/heating.yaml
-<<: !include pages/weather.yaml
+# Single package include (Hardware + Common)
+packages:
+  base_config: !include all_packages.yaml
 
-# WLAN-Konfiguration
+# Layout & Pages als direkte Includes (zu groß für merge)
+font: !include layouts/fonts.yaml
+lvgl: !include layouts/lvgl.yaml
+
+# Seiten-spezifische Sensoren
+binary_sensor: !include pages/lights_sensors.yaml
+sensor: !include pages/heating_sensors.yaml
+text_sensor: !include pages/weather_sensors.yaml
+
+# WLAN
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
