@@ -1,0 +1,125 @@
+# pages/lights.yaml
+# Beispiel-Seite für Licht-Steuerung
+# Passe die entity_id an deine Home Assistant Entities an!
+
+# Home Assistant Sensoren für Lichter
+binary_sensor:
+  # Beispiel: Wohnzimmer Licht
+  - platform: homeassistant
+    id: light_wohnzimmer_state
+    entity_id: light.wohnzimmer  # <-- Ändere diese Entity-ID!
+    publish_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: btn_light_wohnzimmer
+            state:
+              checked: !lambda return x;
+  
+  # Beispiel: Küche Licht
+  - platform: homeassistant
+    id: light_kueche_state
+    entity_id: light.kueche  # <-- Ändere diese Entity-ID!
+    publish_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: btn_light_kueche
+            state:
+              checked: !lambda return x;
+  
+  # Beispiel: Schlafzimmer Licht
+  - platform: homeassistant
+    id: light_schlafzimmer_state
+    entity_id: light.schlafzimmer  # <-- Ändere diese Entity-ID!
+    publish_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: btn_light_schlafzimmer
+            state:
+              checked: !lambda return x;
+
+# LVGL Seite
+lvgl:
+  pages:
+    - id: page_lights
+      widgets:
+        # Titel
+        - label:
+            id: label_lights_title
+            x: 10
+            y: 10
+            text: "Lichter"
+            text_font: roboto_16
+        
+        # Wohnzimmer Licht Button
+        - button:
+            id: btn_light_wohnzimmer
+            x: 10
+            y: 50
+            width: 220
+            height: 80
+            checkable: true
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "\U000F0335 Wohnzimmer"  # MDI Lightbulb Icon
+            on_click:
+              - homeassistant.action:
+                  action: light.toggle
+                  data:
+                    entity_id: light.wohnzimmer  # <-- Ändere diese Entity-ID!
+        
+        # Küche Licht Button
+        - button:
+            id: btn_light_kueche
+            x: 250
+            y: 50
+            width: 220
+            height: 80
+            checkable: true
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "\U000F0335 Küche"  # MDI Lightbulb Icon
+            on_click:
+              - homeassistant.action:
+                  action: light.toggle
+                  data:
+                    entity_id: light.kueche  # <-- Ändere diese Entity-ID!
+        
+        # Schlafzimmer Licht Button
+        - button:
+            id: btn_light_schlafzimmer
+            x: 10
+            y: 150
+            width: 220
+            height: 80
+            checkable: true
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "\U000F0335 Schlafzimmer"  # MDI Lightbulb Icon
+            on_click:
+              - homeassistant.action:
+                  action: light.toggle
+                  data:
+                    entity_id: light.schlafzimmer  # <-- Ändere diese Entity-ID!
+        
+        # Alle Lichter AUS Button
+        - button:
+            id: btn_all_lights_off
+            x: 250
+            y: 150
+            width: 220
+            height: 80
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "\U000F0769 Alle AUS"  # MDI Lightbulb Off Icon
+            on_click:
+              - homeassistant.action:
+                  action: light.turn_off
+                  data:
+                    entity_id: all  # Schaltet alle Lichter aus
