@@ -1,0 +1,40 @@
+# pages/heating.yaml
+# Beispiel-Seite für Heizungs-/Klima-Steuerung
+# TODO: Passe die entity_id an deine Thermostate an!
+
+# Beispiel für Thermostat-Sensor
+sensor:
+  - platform: homeassistant
+    id: thermostat_wohnzimmer_temp
+    entity_id: climate.wohnzimmer
+    attribute: current_temperature
+    on_value:
+      - lvgl.label.update:
+          id: label_temp_wohnzimmer
+          text: !lambda |-
+            return str_sprintf("%.1f°C", x);
+
+lvgl:
+  pages:
+    - id: page_heating
+      widgets:
+        - label:
+            id: label_heating_title
+            x: 10
+            y: 10
+            text: "Heizung"
+            text_font: roboto_16
+        
+        # Temperatur-Anzeige
+        - label:
+            id: label_temp_wohnzimmer
+            x: 10
+            y: 50
+            text: "--.-°C"
+            text_font: roboto_24
+        
+        # TODO: Füge deine Heizungs-Steuerung hinzu!
+        - label:
+            x: 10
+            y: 120
+            text: "Bearbeite pages/heating.yaml\num deine Thermostate hinzuzufügen."
