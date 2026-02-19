@@ -4,6 +4,27 @@
 
 Dieses Repository kombiniert die **funktionierende Hardware-Konfiguration** von [esp_lvg_eigen](https://github.com/sokomania1/esp_lvg_eigen) mit den **erweiterten LVGL-Layouts** von [esphome-guition-display](https://github.com/sokomania1/esphome-guition-display).
 
+## ✅ Import-Status
+
+**Stand: 2026-02-19**
+
+🎉 **VOLLSTÄNDIG IMPORTIERT!**
+
+- ✅ Alle 3 Seiten aus `esphome-guition-display` übertragen
+- ✅ Komplettes Layout mit Fonts und Header
+- ✅ Zeit- und WiFi-Sensoren implementiert
+- ✅ Funktionierende Hardware beibehalten
+- ⚠️ **Entity-IDs müssen angepasst werden!** (siehe unten)
+
+📊 **Was ist drin:**
+- **Lampen**: 9 Lichter mit Helligkeitssteuerung
+- **Heizung**: 3 Thermostate mit Temperatur-Slidern
+- **Wetter**: Freudenstadt-Vorhersage + eigene Sensoren
+
+➡️ **Siehe [VALIDATION.md](VALIDATION.md) für Details!**
+
+---
+
 ## 🔧 Hardware
 
 - **Display**: Guition ESP32-S3 JC3248W535 (3.5", 480×320 Pixel)
@@ -30,16 +51,17 @@ Das `esphome-guition-display`-Projekt hatte **falsche Hardware-Definitionen**:
 ```
 guition-lvgl-ha-display/
 ├── guition-display.yaml       # Hauptkonfiguration
-├── common.yaml                # Gemeinsame ESPHome-Einstellungen
+├── common.yaml                # Zeit- & WiFi-Sensoren
 ├── secrets.yaml.example       # Vorlage für Secrets
+├── VALIDATION.md              # 🔍 Validierungs-Checkliste (NEU!)
 ├── devices/
 │   └── JC3248W535.yaml       # ✅ Korrekte Hardware-Konfiguration
 ├── layouts/
-│   └── 480x320.yaml          # LVGL-Basis-Layout
+│   └── 480x320.yaml          # LVGL-Layout + Fonts + Header
 ├── pages/
-│   ├── lights.yaml           # Licht-Steuerung
-│   ├── heating.yaml          # Heizungs-Steuerung
-│   └── weather.yaml          # Wetter-Anzeige
+│   ├── lights.yaml           # 💡 9 Lichter mit Slider
+│   ├── heating.yaml          # 🌡️ 3 Thermostate
+│   └── weather.yaml          # ☁️ Wetter + Sensoren
 └── README.md
 ```
 
@@ -49,8 +71,8 @@ guition-lvgl-ha-display/
 
 ```bash
 cd /config/esphome
-git clone https://github.com/sokomania1/guition-lvgl-ha-display.git
-cd guition-lvgl-ha-display
+git clone https://github.com/sokomania1/guition-lvgl-ha-display.git guition
+cd guition
 ```
 
 ### 2. Secrets konfigurieren
@@ -69,7 +91,30 @@ api_encryption_key: "generierter_32_byte_key"
 ota_password: "dein_ota_passwort"
 ```
 
-### 3. Kompilieren und Flashen
+### 3. ⚠️ Entity-IDs anpassen (WICHTIG!)
+
+Die Seiten enthalten **Beispiel-Entitäten**. Du **MUSST** diese an deine Home-Assistant-Entitäten anpassen!
+
+**Finde deine Entity-IDs:**
+1. Home Assistant → **Entwicklerwerkzeuge** → **Zustände**
+2. Suche nach `light.`, `climate.`, `weather.`, `sensor.`
+3. Kopiere die IDs
+
+**Passe die Dateien an:**
+
+```bash
+# Beispiel: Licht-Entitäten ersetzen
+nano pages/lights.yaml
+# Ändere: entity_id: light.alle_lichter_2
+#     zu: entity_id: light.deine_lampe
+
+nano pages/heating.yaml
+nano pages/weather.yaml
+```
+
+📝 **Siehe [VALIDATION.md](VALIDATION.md)** für komplette Liste aller Entity-IDs!
+
+### 4. Kompilieren und Flashen
 
 **Erste Installation (USB):**
 
@@ -144,12 +189,15 @@ Nach dem Flashen wird das Display automatisch in Home Assistant erkannt:
 ### Von `esphome-guition-display` übernommen:
 - ✅ Erweiterte LVGL-Seiten (Licht, Heizung, Wetter)
 - ✅ Modulare Struktur mit `pages/`-Ordner
-- ✅ Detaillierte Home-Assistant-Integration
+- ✅ Header mit Uhrzeit/WiFi-Signal
+- ✅ Roboto Fonts (Regular + Bold)
+- ✅ Material Design Icons
 
 ### Neu in diesem Projekt:
 - ✅ Korrigierte Hardware-Definitionen
-- ✅ Dokumentation der Unterschiede
+- ✅ Dokumentation der Unterschiede ([VALIDATION.md](VALIDATION.md))
 - ✅ Kompatibilität mit neuesten ESPHome-Versionen
+- ✅ Vollständige Import-Validierung
 
 ## 📝 Anpassungen
 
@@ -183,6 +231,7 @@ esphome:
   ```yaml
   light.turn_on: backlight
   ```
+- In Home Assistant: Suche "Backlight" und schalte auf 100%
 
 ### Touch funktioniert nicht
 
@@ -191,6 +240,19 @@ esphome:
   i2c:
     scan: true  # Zeigt erkannte Geräte im Log
   ```
+- Logs prüfen: `esphome logs guition-display.yaml`
+
+### "Entity not found"
+
+- ⚠️ **Du musst die Entity-IDs anpassen!**
+- Siehe Abschnitt "Entity-IDs anpassen" oben
+- Vollständige Liste in [VALIDATION.md](VALIDATION.md)
+
+### "Font download failed"
+
+- Beim **ersten** Kompilieren werden Fonts aus Google Fonts heruntergeladen
+- Das dauert 2-5 Minuten länger
+- Bei erneutem Fehler: Internet-Verbindung prüfen
 
 ### "Display-Treiber nicht gefunden"
 
@@ -199,6 +261,7 @@ esphome:
 
 ## 📚 Weitere Ressourcen
 
+- **[VALIDATION.md](VALIDATION.md)** - Komplette Import-Checkliste
 - [ESPHome LVGL Dokumentation](https://esphome.io/components/lvgl/)
 - [Home Assistant Community: Guition Displays](https://community.home-assistant.io/t/guition-4-480x480-esp32-s3-4848s040-smart-display-with-lvgl/729271)
 - [LVGL Widget-Referenz](https://docs.lvgl.io/master/widgets/index.html)
@@ -214,5 +277,6 @@ Bitte beachte die jeweiligen Lizenzen der Original-Projekte.
 ---
 
 **Erstellt**: 2026-02-19  
-**Letztes Update**: 2026-02-19  
-**ESPHome-Version**: 2024.x+
+**Letztes Update**: 2026-02-19 21:30 CET  
+**ESPHome-Version**: 2024.11.0+  
+**Status**: ✅ Vollständiger Import abgeschlossen
