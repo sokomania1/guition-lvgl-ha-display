@@ -19,7 +19,7 @@ esphome:
       - delay: 2s
       - lvgl.page.show: ${home_page}
 
-# ESP32 Platform - MUSS vor packages kommen!
+# ESP32 Platform
 esp32:
   board: esp32-s3-devkitc-1
   variant: esp32s3
@@ -38,48 +38,38 @@ psram:
   speed: 80MHz
 
 substitutions:
-  # Startseite beim Booten (änderbar: page_lights, page_heating, page_weather)
   home_page: "page_lights"
 
-# Gemeinsame Konfiguration einbinden
-# WICHTIG: Keys dürfen nicht mit ESPHome-Komponenten-Namen kollidieren!
-packages:
-  hardware: !include devices/JC3248W535.yaml
-  base: !include common.yaml
-  ui: !include layouts/480x320.yaml
-  page_lights: !include pages/lights.yaml
-  page_heating: !include pages/heating.yaml
-  page_weather: !include pages/weather.yaml
+# Includes mit << Merge-Operator (funktioniert mit allen ESPHome-Versionen)
+<<: !include devices/JC3248W535.yaml
+<<: !include common.yaml
+<<: !include layouts/480x320.yaml
+<<: !include pages/lights.yaml
+<<: !include pages/heating.yaml
+<<: !include pages/weather.yaml
 
 # WLAN-Konfiguration
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-  
-  # Fallback Access Point bei WLAN-Problemen
   ap:
     ssid: "Guition-Display"
     password: "12345678"
 
-# Captive Portal für WiFi-Setup
 captive_portal:
 
-# Home Assistant API
 api:
   encryption:
     key: !secret api_encryption_key
-  # Home Assistant IP speichern (aus common.yaml global)
   on_client_connected:
     - globals.set:
         id: homeassistant_ip
         value: !lambda return client_address;
 
-# OTA Updates über WLAN
 ota:
   - platform: esphome
     password: !secret ota_password
 
-# Logging
 logger:
   level: INFO
   logs:
