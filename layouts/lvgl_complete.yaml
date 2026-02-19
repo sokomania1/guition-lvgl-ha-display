@@ -1,0 +1,80 @@
+# layouts/lvgl_complete.yaml
+# Komplette LVGL-Konfiguration mit Header und Seiten-Includes
+
+log_level: WARN
+
+# Display-Zuordnung
+displays:
+  - main_display
+
+# Touchscreen
+touchscreens:
+  - touchscreen_id: main_touchscreen
+    long_press_time: 500ms
+    long_press_repeat_time: 200ms
+
+# Farb-Definitionen
+color_depth: 16
+bg_color: 0x000000
+text_color: 0xFFFFFF
+default_font: roboto_16
+
+# Display Buffer
+buffer_size: 25%
+
+# Theme
+theme:
+  obj:
+    bg_color: 0x000000
+    text_color: 0xFFFFFF
+    border_width: 0
+    radius: 8
+  
+  button:
+    bg_color: 0x1E1E1E
+    text_color: 0xFFFFFF
+    radius: 8
+    border_width: 1
+    border_color: 0x333333
+    pressed:
+      bg_color: 0x2E2E2E
+    checked:
+      bg_color: 0x0080FF
+      text_color: 0xFFFFFF
+
+# Top Bar (Header)
+top_layer:
+  widgets:
+    - obj:
+        id: header_bar
+        x: 0
+        y: 0
+        width: 480
+        height: 40
+        bg_color: 0x1a1a1a
+        border_width: 0
+        pad_all: 5
+        widgets:
+          - label:
+              id: time_label
+              x: 10
+              y: 5
+              text_font: roboto_bold_24
+              text_color: 0xFFFFFF
+              text: "00:00"
+          - label:
+              id: page_title
+              align: CENTER
+              text_font: roboto_20
+              text_color: 0xAAAAAA
+              text: "💡 Lampen"
+          - label:
+              id: wifi_label
+              x: 430
+              y: 5
+              text_font: roboto_16
+              text_color: 0xAAAAAA
+              text: "•••"
+
+# Seiten als Includes
+pages: !include ../pages/all_pages.yaml
