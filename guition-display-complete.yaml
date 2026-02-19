@@ -1,0 +1,717 @@
+# guition-display-complete.yaml
+# 🎉 VOLLSTÄNDIGE VERSION mit allen 3 Seiten!
+# Alle deine Entity-IDs sind drin
+
+esphome:
+  name: guition-display
+  friendly_name: Guition Display
+  min_version: 2024.11.0
+  platformio_options:
+    board_build.flash_mode: dio
+    board_build.mcu: esp32s3
+  on_boot:
+    priority: 600
+    then:
+      - light.turn_on:
+          id: backlight
+          brightness: 80%
+      - delay: 1s
+      - lvgl.page.show: page_lights
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
+      CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+# === HARDWARE ===
+spi:
+  - type: quad
+    clk_pin: 47
+    data_pins: [21, 48, 40, 39]
+
+i2c:
+  - sda: 4
+    scl: 8
+    scan: true
+
+output:
+  - id: gpio_backlight_pwm
+    platform: ledc
+    pin: 1
+    frequency: 1000Hz
+
+light:
+  - id: backlight
+    name: Backlight
+    platform: monochromatic
+    output: gpio_backlight_pwm
+    restore_mode: ALWAYS_ON
+
+display:
+  - id: main_display
+    platform: mipi_spi
+    model: JC3248W535
+    data_rate: 40MHz
+    update_interval: never
+    auto_clear_enabled: false
+
+touchscreen:
+  - id: main_touchscreen
+    platform: axs15231
+
+web_server:
+  port: 80
+
+time:
+  - platform: homeassistant
+    id: ha_time
+    timezone: Europe/Berlin
+
+# === WIFI ===
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Guition-Display"
+
+captive_portal:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+logger:
+  level: INFO
+  logs:
+    component: ERROR
+    lvgl: WARN
+
+# === FONTS ===
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_12
+    size: 12
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  - file: "gfonts://Roboto"
+    id: roboto_16
+    size: 16
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  - file: "gfonts://Roboto"
+    id: roboto_20
+    size: 20
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  - file: "gfonts://Roboto@700"
+    id: roboto_bold_24
+    size: 24
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  - file: "gfonts://Roboto@700"
+    id: roboto_bold_32
+    size: 32
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+
+# === COMMON SENSOREN ===
+text_sensor:
+  - platform: template
+    id: current_time_badge
+    update_interval: 1s
+    lambda: |-
+      auto time = id(ha_time).now();
+      return str_sprintf("%02d:%02d", time.hour, time.minute);
+  
+  - platform: template
+    id: current_date
+    update_interval: 60s
+    lambda: |-
+      auto time = id(ha_time).now();
+      static const char * const months[] = {"Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"};
+      return str_sprintf("%02d. %s %04d", time.day_of_month, months[time.month-1], time.year);
+  
+  - platform: wifi_info
+    ip_address:
+      id: ip_address
+      entity_category: diagnostic
+  
+  # Wetter-Sensoren
+  - platform: homeassistant
+    entity_id: weather.forecast_home
+    id: weather_condition
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: weather_condition_label
+          text: !lambda return x.c_str();
+
+sensor:
+  - platform: wifi_signal
+    id: wifi_signal_db
+    update_interval: 60s
+  
+  - platform: template
+    id: wifi_strength
+    unit_of_measurement: "%"
+    update_interval: 60s
+    lambda: |-
+      if (id(wifi_signal_db).state) {
+        return min(max(2 * (id(wifi_signal_db).state + 100.0), 0.0), 100.0);
+      } else {
+        return 0.0;
+      }
+  
+  # Lichter - Brightness
+  - platform: homeassistant
+    entity_id: light.alle_lichter_2
+    attribute: brightness
+    id: alle_lichter_brightness
+    internal: true
+    on_value:
+      - lvgl.slider.update:
+          id: slider_alle_lichter
+          value: !lambda return x / 2.55;
+  
+  # Heizung - Temperaturen
+  - platform: homeassistant
+    entity_id: climate.wohnzimmer_thermostat
+    attribute: current_temperature
+    id: wz_current_temp
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: wz_current_label
+          text: !lambda return str_sprintf("%.1f C", x);
+  
+  - platform: homeassistant
+    entity_id: climate.wohnzimmer_thermostat
+    attribute: temperature
+    id: wz_target_temp
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: wz_target_label
+          text: !lambda return str_sprintf("Ziel: %.1f C", x);
+  
+  - platform: homeassistant
+    entity_id: climate.schlafzimmer_thermostat
+    attribute: current_temperature
+    id: sz_current_temp
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: sz_current_label
+          text: !lambda return str_sprintf("%.1f C", x);
+  
+  - platform: homeassistant
+    entity_id: climate.schlafzimmer_thermostat
+    attribute: temperature
+    id: sz_target_temp
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: sz_target_label
+          text: !lambda return str_sprintf("Ziel: %.1f C", x);
+  
+  # Wetter - Temperatur
+  - platform: homeassistant
+    entity_id: weather.forecast_home
+    attribute: temperature
+    id: weather_temp
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: weather_temp_label
+          text: !lambda return str_sprintf("%.0f C", x);
+
+# === BINARY SENSOREN (Lichter) ===
+binary_sensor:
+  - platform: homeassistant
+    entity_id: light.alle_lichter_2
+    id: alle_lichter_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_alle_lichter
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.stehlampe_bibi
+    id: stehlampe_bibi_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_stehlampe_bibi
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.garderobe_licht
+    id: garderobe_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_garderobe
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.licht_wohnzimmerschrank
+    id: wohnzimmer_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_wohnzimmer
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.esszimmer_licht
+    id: esszimmer_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_esszimmer
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.kuchen_unterlicht
+    id: kueche_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_kueche
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.kajplats_e27_ws_globe_470lm
+    id: flur_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_flur
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.licht_aktenschrank_markus
+    id: aktenschrank_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_aktenschrank
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+  
+  - platform: homeassistant
+    entity_id: light.bibis_ecke_licht
+    id: bibis_ecke_state
+    internal: true
+    on_state:
+      - lvgl.widget.update:
+          id: btn_bibis_ecke
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+
+# === LVGL ===
+lvgl:
+  log_level: WARN
+  displays:
+    - main_display
+  touchscreens:
+    - touchscreen_id: main_touchscreen
+  color_depth: 16
+  default_font: roboto_16
+  buffer_size: 25%
+  
+  # Header
+  top_layer:
+    widgets:
+      - obj:
+          id: header_bar
+          x: 0
+          y: 0
+          width: 480
+          height: 40
+          bg_color: 0x1a1a1a
+          border_width: 0
+          pad_all: 5
+          widgets:
+            - label:
+                id: time_label
+                x: 10
+                y: 5
+                text_font: roboto_bold_24
+                text: "00:00"
+            - label:
+                id: page_title
+                align: CENTER
+                text_font: roboto_20
+                text: "Lampen"
+            - label:
+                id: wifi_label
+                x: 430
+                y: 5
+                text_font: roboto_16
+                text: "..."
+  
+  # === SEITEN ===
+  pages:
+    # === LAMPEN-SEITE ===
+    - id: page_lights
+      bg_color: 0x000000
+      layout:
+        type: flex
+        flex_flow: COLUMN
+      pad_all: 0
+      pad_top: 45
+      widgets:
+        # Alle Lichter mit Slider
+        - obj:
+            width: 100%
+            height: 90
+            pad_all: 5
+            bg_color: 0x000000
+            border_width: 0
+            widgets:
+              - obj:
+                  id: btn_alle_lichter
+                  width: 100%
+                  height: 80
+                  bg_color: 0x333333
+                  border_color: 0x666666
+                  border_width: 2
+                  radius: 10
+                  pad_all: 10
+                  clickable: true
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.alle_lichter_2
+                  widgets:
+                    - label:
+                        align: TOP_LEFT
+                        text_font: roboto_bold_24
+                        text_color: 0xFFFFFF
+                        text: "Alle Lichter"
+                    - slider:
+                        id: slider_alle_lichter
+                        width: 90%
+                        height: 20
+                        align: BOTTOM_MID
+                        y: -5
+                        min_value: 0
+                        max_value: 100
+                        value: 50
+                        on_release:
+                          - homeassistant.service:
+                              service: light.turn_on
+                              data:
+                                entity_id: light.alle_lichter_2
+                                brightness: !lambda return int(x * 2.55);
+        
+        # Grid 2x2 (Reihe 1)
+        - obj:
+            width: 100%
+            height: 175
+            pad_all: 5
+            bg_color: 0x000000
+            border_width: 0
+            layout:
+              type: GRID
+              grid_columns: [230, 230]
+              grid_rows: [80, 80]
+              pad_column: 10
+              pad_row: 10
+            widgets:
+              - button:
+                  id: btn_stehlampe_bibi
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.stehlampe_bibi
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_20
+                        text: "Stehlampe\nBibi"
+              
+              - button:
+                  id: btn_garderobe
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.garderobe_licht
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_20
+                        text: "Garderobe"
+              
+              - button:
+                  id: btn_wohnzimmer
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.licht_wohnzimmerschrank
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_20
+                        text: "Wohnzimmer\nSchrank"
+              
+              - button:
+                  id: btn_esszimmer
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.esszimmer_licht
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_20
+                        text: "Esszimmer"
+        
+        # Grid 3 Spalten (Reihe 2)
+        - obj:
+            width: 100%
+            height: 85
+            pad_all: 5
+            bg_color: 0x000000
+            border_width: 0
+            layout:
+              type: GRID
+              grid_columns: [150, 150, 150]
+              grid_rows: [70]
+              pad_column: 5
+              pad_row: 10
+            widgets:
+              - button:
+                  id: btn_kueche
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.kuchen_unterlicht
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_16
+                        text: "Kueche\nUnter"
+              
+              - button:
+                  id: btn_flur
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.kajplats_e27_ws_globe_470lm
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_16
+                        text: "Flur\nLicht"
+              
+              - button:
+                  id: btn_aktenschrank
+                  width: 100%
+                  height: 100%
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.licht_aktenschrank_markus
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_16
+                        text: "Akten\nMarkus"
+        
+        # Letzte Lampe
+        - obj:
+            width: 100%
+            height: 85
+            pad_all: 5
+            bg_color: 0x000000
+            border_width: 0
+            widgets:
+              - button:
+                  id: btn_bibis_ecke
+                  x: 5
+                  width: 150
+                  height: 70
+                  bg_color: 0x333333
+                  radius: 10
+                  on_click:
+                    - homeassistant.service:
+                        service: light.toggle
+                        data:
+                          entity_id: light.bibis_ecke_licht
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text_font: roboto_16
+                        text: "Bibis\nEcke"
+      
+      on_load:
+        - lvgl.label.update:
+            id: page_title
+            text: "Lampen"
+    
+    # === HEIZUNGS-SEITE ===
+    - id: page_heating
+      bg_color: 0x000000
+      pad_all: 10
+      pad_top: 50
+      widgets:
+        # Wohnzimmer
+        - obj:
+            width: 460
+            height: 100
+            bg_color: 0x1a1a1a
+            radius: 10
+            pad_all: 10
+            widgets:
+              - label:
+                  text: "Wohnzimmer"
+                  text_font: roboto_bold_24
+                  align: TOP_LEFT
+              - label:
+                  id: wz_current_label
+                  text: "-- C"
+                  text_font: roboto_bold_32
+                  align: CENTER
+              - label:
+                  id: wz_target_label
+                  text: "Ziel: -- C"
+                  text_font: roboto_16
+                  align: BOTTOM_MID
+        
+        # Schlafzimmer
+        - obj:
+            width: 460
+            height: 100
+            y: 120
+            bg_color: 0x1a1a1a
+            radius: 10
+            pad_all: 10
+            widgets:
+              - label:
+                  text: "Schlafzimmer"
+                  text_font: roboto_bold_24
+                  align: TOP_LEFT
+              - label:
+                  id: sz_current_label
+                  text: "-- C"
+                  text_font: roboto_bold_32
+                  align: CENTER
+              - label:
+                  id: sz_target_label
+                  text: "Ziel: -- C"
+                  text_font: roboto_16
+                  align: BOTTOM_MID
+      
+      on_load:
+        - lvgl.label.update:
+            id: page_title
+            text: "Heizung"
+    
+    # === WETTER-SEITE ===
+    - id: page_weather
+      bg_color: 0x000000
+      pad_all: 10
+      pad_top: 50
+      widgets:
+        - obj:
+            width: 460
+            height: 200
+            bg_color: 0x1a1a1a
+            radius: 10
+            pad_all: 15
+            widgets:
+              - label:
+                  text: "Wetter"
+                  text_font: roboto_bold_32
+                  align: TOP_LEFT
+              - label:
+                  id: weather_temp_label
+                  text: "-- C"
+                  text_font: roboto_bold_32
+                  align: CENTER
+                  y: 10
+              - label:
+                  id: weather_condition_label
+                  text: "--"
+                  text_font: roboto_20
+                  align: BOTTOM_MID
+      
+      on_load:
+        - lvgl.label.update:
+            id: page_title
+            text: "Wetter"
+
+# Header Update
+interval:
+  - interval: 1s
+    then:
+      - lvgl.label.update:
+          id: time_label
+          text: !lambda return id(current_time_badge).state.c_str();
+      - lvgl.label.update:
+          id: wifi_label
+          text: !lambda |-
+            int strength = (int)id(wifi_strength).state;
+            if (strength > 75) return "***";
+            if (strength > 50) return "** ";
+            if (strength > 25) return "*  ";
+            return "   ";
