@@ -161,7 +161,8 @@ binary_sensor:
     on_state:
       - lvgl.widget.update:
           id: btn_alle_lichter
-          bg_color: !lambda return lv_color_hex(x ? 0xFFAA00 : 0x333333);
+          bg_color: !lambda |-
+            return lv_color_hex(x ? 0xFFAA00 : 0x333333);
 
 # === LVGL ===
 lvgl:
