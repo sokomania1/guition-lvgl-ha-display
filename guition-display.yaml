@@ -23,13 +23,13 @@ substitutions:
 # Gemeinsame Konfiguration einbinden
 packages:
   device: !include devices/JC3248W535.yaml  # ✅ Korrekte Hardware
-  common: !include common.yaml
-  layout: !include layouts/480x320.yaml
+  common: !include common.yaml              # Standard-Sensoren & Schalter
+  layout: !include layouts/480x320.yaml     # LVGL-Basis-Layout
   
   # Seiten (nach Bedarf hinzufügen/entfernen)
-  lights: !include pages/lights.yaml
-  heating: !include pages/heating.yaml
-  weather: !include pages/weather.yaml
+  lights: !include pages/lights.yaml        # Licht-Steuerung
+  heating: !include pages/heating.yaml      # Heizungs-Steuerung
+  weather: !include pages/weather.yaml      # Wetter-Anzeige
 
 # WLAN-Konfiguration
 wifi:
@@ -48,6 +48,11 @@ captive_portal:
 api:
   encryption:
     key: !secret api_encryption_key
+  # Home Assistant IP speichern (aus common.yaml global)
+  on_client_connected:
+    - globals.set:
+        id: homeassistant_ip
+        value: !lambda return client_address;
 
 # OTA Updates über WLAN
 ota:
@@ -59,3 +64,4 @@ logger:
   level: INFO
   logs:
     component: ERROR
+    lvgl: WARN
