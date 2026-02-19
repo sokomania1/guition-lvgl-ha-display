@@ -1,0 +1,39 @@
+# layouts/480x320.yaml
+# Basis-Layout für 480x320 Displays
+# Vereinfachte Version ohne externe Widget-Abhängigkeiten
+
+lvgl:
+  log_level: WARN
+  
+  # Basis-Theme
+  theme:
+    # Dunkles Theme
+    obj:
+      bg_color: 0x000000
+      text_color: 0xFFFFFF
+      border_width: 0
+      radius: 8
+    
+    btn:
+      bg_color: 0x1E1E1E
+      text_color: 0xFFFFFF
+      radius: 8
+      border_width: 1
+      border_color: 0x333333
+      
+      pressed:
+        bg_color: 0x2E2E2E
+      
+      checked:
+        bg_color: 0x0080FF
+        text_color: 0xFFFFFF
+  
+  # Standard-Seite als Fallback
+  pages:
+    - id: splash
+      skip: true
+      widgets:
+        - label:
+            align: CENTER
+            text: "Lade..."
+            text_font: unscii_8
