@@ -1,6 +1,6 @@
 # guition-display-complete.yaml
-# 🎉 VOLLSTÄNDIGE VERSION mit allen 3 Seiten + Navigation!
-# Alle deine Entity-IDs sind drin
+# 🎉 VOLLSTÄNDIGE VERSION - HOCHFORMAT (320x480)
+# Rotation: 90 Grad für physisches Hochformat
 
 esphome:
   name: guition-display
@@ -111,26 +111,26 @@ font:
     glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto"
+    id: roboto_14
+    size: 14
+    glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
+  
+  - file: "gfonts://Roboto"
     id: roboto_16
     size: 16
     glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
-  - file: "gfonts://Roboto"
-    id: roboto_20
-    size: 20
+  - file: "gfonts://Roboto@700"
+    id: roboto_bold_18
+    size: 18
     glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto@700"
     id: roboto_bold_24
     size: 24
     glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
-  
-  - file: "gfonts://Roboto@700"
-    id: roboto_bold_32
-    size: 32
-    glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
 
-# === COMMON SENSOREN ===
+# === SENSOREN ===
 text_sensor:
   - platform: template
     id: current_time_badge
@@ -139,20 +139,11 @@ text_sensor:
       auto time = id(ha_time).now();
       return str_sprintf("%02d:%02d", time.hour, time.minute);
   
-  - platform: template
-    id: current_date
-    update_interval: 60s
-    lambda: |-
-      auto time = id(ha_time).now();
-      static const char * const months[] = {"Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"};
-      return str_sprintf("%02d. %s %04d", time.day_of_month, months[time.month-1], time.year);
-  
   - platform: wifi_info
     ip_address:
       id: ip_address
       entity_category: diagnostic
   
-  # Wetter-Sensoren
   - platform: homeassistant
     entity_id: weather.forecast_home
     id: weather_condition
@@ -179,7 +170,6 @@ sensor:
         return 0.0;
       }
   
-  # Lichter - Brightness
   - platform: homeassistant
     entity_id: light.alle_lichter_2
     attribute: brightness
@@ -190,7 +180,6 @@ sensor:
           id: slider_alle_lichter
           value: !lambda return x / 2.55;
   
-  # Heizung - Temperaturen
   - platform: homeassistant
     entity_id: climate.wohnzimmer_thermostat
     attribute: current_temperature
@@ -235,7 +224,6 @@ sensor:
           text: !lambda |-
             return str_sprintf("Ziel: %.1f C", x);
   
-  # Wetter - Temperatur
   - platform: homeassistant
     entity_id: weather.forecast_home
     attribute: temperature
@@ -247,7 +235,7 @@ sensor:
           text: !lambda |-
             return str_sprintf("%.0f C", x);
 
-# === BINARY SENSOREN (Lichter) ===
+# === BINARY SENSOREN ===
 binary_sensor:
   - platform: homeassistant
     entity_id: light.alle_lichter_2
@@ -339,7 +327,7 @@ binary_sensor:
           bg_color: !lambda |-
             return lv_color_hex(x ? 0xFFAA00 : 0x333333);
 
-# === LVGL ===
+# === LVGL (320x480 Hochformat) ===
 lvgl:
   log_level: WARN
   displays:
@@ -347,28 +335,28 @@ lvgl:
   touchscreens:
     - touchscreen_id: main_touchscreen
   color_depth: 16
-  default_font: roboto_16
+  default_font: roboto_14
   buffer_size: 25%
   
-  # Header mit Navigation
+  # Header (320px breit)
   top_layer:
     widgets:
       - obj:
           id: header_bar
           x: 0
           y: 0
-          width: 480
-          height: 40
+          width: 320
+          height: 35
           bg_color: 0x1a1a1a
           border_width: 0
-          pad_all: 5
+          pad_all: 3
           widgets:
-            # Zurück-Button (links)
+            # Zurück-Button
             - button:
                 id: btn_nav_prev
-                x: 5
-                y: 5
-                width: 50
+                x: 2
+                y: 2
+                width: 40
                 height: 30
                 bg_color: 0x333333
                 radius: 5
@@ -377,41 +365,41 @@ lvgl:
                 widgets:
                   - label:
                       text: "<"
-                      text_font: roboto_20
+                      text_font: roboto_bold_18
                       align: CENTER
             
             # Uhrzeit
             - label:
                 id: time_label
-                x: 65
+                x: 50
                 y: 5
-                text_font: roboto_bold_24
+                text_font: roboto_bold_18
                 text: "00:00"
             
-            # Seitentitel
+            # Titel
             - label:
                 id: page_title
-                x: 180
-                y: 10
-                text_font: roboto_20
+                x: 130
+                y: 7
+                text_font: roboto_14
                 text_color: 0xAAAAAA
                 text: "Lampen"
             
-            # WiFi Signal
+            # WiFi
             - label:
                 id: wifi_label
-                x: 365
-                y: 10
-                text_font: roboto_16
+                x: 245
+                y: 7
+                text_font: roboto_12
                 text_color: 0xAAAAAA
                 text: "..."
             
-            # Vorwärts-Button (rechts)
+            # Vorwärts-Button
             - button:
                 id: btn_nav_next
-                x: 425
-                y: 5
-                width: 50
+                x: 278
+                y: 2
+                width: 40
                 height: 30
                 bg_color: 0x333333
                 radius: 5
@@ -420,85 +408,69 @@ lvgl:
                 widgets:
                   - label:
                       text: ">"
-                      text_font: roboto_20
+                      text_font: roboto_bold_18
                       align: CENTER
   
   # === SEITEN ===
   pages:
-    # === LAMPEN-SEITE ===
+    # === LAMPEN (2 Spalten) ===
     - id: page_lights
       bg_color: 0x000000
-      layout:
-        type: flex
-        flex_flow: COLUMN
-      pad_all: 0
-      pad_top: 45
+      pad_all: 5
+      pad_top: 40
       widgets:
-        # Alle Lichter mit Slider
+        # Alle Lichter
         - obj:
-            width: 100%
-            height: 90
-            pad_all: 5
-            bg_color: 0x000000
-            border_width: 0
+            width: 310
+            height: 70
+            bg_color: 0x333333
+            radius: 8
+            pad_all: 8
+            clickable: true
+            id: btn_alle_lichter
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.alle_lichter_2
             widgets:
-              - obj:
-                  id: btn_alle_lichter
-                  width: 100%
-                  height: 80
-                  bg_color: 0x333333
-                  border_color: 0x666666
-                  border_width: 2
-                  radius: 10
-                  pad_all: 10
-                  clickable: true
-                  on_click:
+              - label:
+                  text: "Alle Lichter"
+                  text_font: roboto_bold_18
+                  align: TOP_LEFT
+              - slider:
+                  id: slider_alle_lichter
+                  width: 90%
+                  height: 15
+                  align: BOTTOM_MID
+                  y: -3
+                  min_value: 0
+                  max_value: 100
+                  on_release:
                     - homeassistant.service:
-                        service: light.toggle
+                        service: light.turn_on
                         data:
                           entity_id: light.alle_lichter_2
-                  widgets:
-                    - label:
-                        align: TOP_LEFT
-                        text_font: roboto_bold_24
-                        text_color: 0xFFFFFF
-                        text: "Alle Lichter"
-                    - slider:
-                        id: slider_alle_lichter
-                        width: 90%
-                        height: 20
-                        align: BOTTOM_MID
-                        y: -5
-                        min_value: 0
-                        max_value: 100
-                        value: 50
-                        on_release:
-                          - homeassistant.service:
-                              service: light.turn_on
-                              data:
-                                entity_id: light.alle_lichter_2
-                                brightness: !lambda return int(x * 2.55);
+                          brightness: !lambda return int(x * 2.55);
         
-        # Grid 2x2 (Reihe 1)
+        # Grid 2x5 (9 Lampen)
         - obj:
-            width: 100%
-            height: 175
-            pad_all: 5
+            width: 310
+            y: 75
+            height: 400
             bg_color: 0x000000
             border_width: 0
             layout:
               type: GRID
-              grid_columns: [230, 230]
-              grid_rows: [80, 80]
+              grid_columns: [150, 150]
+              grid_rows: [75, 75, 75, 75, 75]
               pad_column: 10
-              pad_row: 10
+              pad_row: 8
             widgets:
               - button:
                   id: btn_stehlampe_bibi
-                  width: 100%
-                  height: 100%
                   bg_color: 0x333333
-                  radius: 10
+                  radius: 8
                   on_click:
                     - homeassistant.service:
                         service: light.toggle
@@ -506,16 +478,14 @@ lvgl:
                           entity_id: light.stehlampe_bibi
                   widgets:
                     - label:
-                        align: CENTER
-                        text_font: roboto_20
                         text: "Stehlampe\nBibi"
+                        text_font: roboto_14
+                        align: CENTER
               
               - button:
                   id: btn_garderobe
-                  width: 100%
-                  height: 100%
                   bg_color: 0x333333
-                  radius: 10
+                  radius: 8
                   on_click:
                     - homeassistant.service:
                         service: light.toggle
@@ -523,16 +493,14 @@ lvgl:
                           entity_id: light.garderobe_licht
                   widgets:
                     - label:
-                        align: CENTER
-                        text_font: roboto_20
                         text: "Garderobe"
+                        text_font: roboto_14
+                        align: CENTER
               
               - button:
                   id: btn_wohnzimmer
-                  width: 100%
-                  height: 100%
                   bg_color: 0x333333
-                  radius: 10
+                  radius: 8
                   on_click:
                     - homeassistant.service:
                         service: light.toggle
@@ -540,16 +508,14 @@ lvgl:
                           entity_id: light.licht_wohnzimmerschrank
                   widgets:
                     - label:
-                        align: CENTER
-                        text_font: roboto_20
                         text: "Wohnzimmer\nSchrank"
+                        text_font: roboto_14
+                        align: CENTER
               
               - button:
                   id: btn_esszimmer
-                  width: 100%
-                  height: 100%
                   bg_color: 0x333333
-                  radius: 10
+                  radius: 8
                   on_click:
                     - homeassistant.service:
                         service: light.toggle
@@ -557,30 +523,14 @@ lvgl:
                           entity_id: light.esszimmer_licht
                   widgets:
                     - label:
-                        align: CENTER
-                        text_font: roboto_20
                         text: "Esszimmer"
-        
-        # Grid 3 Spalten (Reihe 2)
-        - obj:
-            width: 100%
-            height: 85
-            pad_all: 5
-            bg_color: 0x000000
-            border_width: 0
-            layout:
-              type: GRID
-              grid_columns: [150, 150, 150]
-              grid_rows: [70]
-              pad_column: 5
-              pad_row: 10
-            widgets:
+                        text_font: roboto_14
+                        align: CENTER
+              
               - button:
                   id: btn_kueche
-                  width: 100%
-                  height: 100%
                   bg_color: 0x333333
-                  radius: 10
+                  radius: 8
                   on_click:
                     - homeassistant.service:
                         service: light.toggle
@@ -588,16 +538,14 @@ lvgl:
                           entity_id: light.kuchen_unterlicht
                   widgets:
                     - label:
-                        align: CENTER
-                        text_font: roboto_16
                         text: "Kueche\nUnter"
+                        text_font: roboto_14
+                        align: CENTER
               
               - button:
                   id: btn_flur
-                  width: 100%
-                  height: 100%
                   bg_color: 0x333333
-                  radius: 10
+                  radius: 8
                   on_click:
                     - homeassistant.service:
                         service: light.toggle
@@ -605,16 +553,14 @@ lvgl:
                           entity_id: light.kajplats_e27_ws_globe_470lm
                   widgets:
                     - label:
+                        text: "Flur"
+                        text_font: roboto_14
                         align: CENTER
-                        text_font: roboto_16
-                        text: "Flur\nLicht"
               
               - button:
                   id: btn_aktenschrank
-                  width: 100%
-                  height: 100%
                   bg_color: 0x333333
-                  radius: 10
+                  radius: 8
                   on_click:
                     - homeassistant.service:
                         service: light.toggle
@@ -622,25 +568,14 @@ lvgl:
                           entity_id: light.licht_aktenschrank_markus
                   widgets:
                     - label:
-                        align: CENTER
-                        text_font: roboto_16
                         text: "Akten\nMarkus"
-        
-        # Letzte Lampe
-        - obj:
-            width: 100%
-            height: 85
-            pad_all: 5
-            bg_color: 0x000000
-            border_width: 0
-            widgets:
+                        text_font: roboto_14
+                        align: CENTER
+              
               - button:
                   id: btn_bibis_ecke
-                  x: 5
-                  width: 150
-                  height: 70
                   bg_color: 0x333333
-                  radius: 10
+                  radius: 8
                   on_click:
                     - homeassistant.service:
                         service: light.toggle
@@ -648,66 +583,64 @@ lvgl:
                           entity_id: light.bibis_ecke_licht
                   widgets:
                     - label:
-                        align: CENTER
-                        text_font: roboto_16
                         text: "Bibis\nEcke"
+                        text_font: roboto_14
+                        align: CENTER
       
       on_load:
         - lvgl.label.update:
             id: page_title
             text: "Lampen"
     
-    # === HEIZUNGS-SEITE ===
+    # === HEIZUNG ===
     - id: page_heating
       bg_color: 0x000000
       pad_all: 10
-      pad_top: 50
+      pad_top: 45
       widgets:
-        # Wohnzimmer
         - obj:
-            width: 460
-            height: 100
+            width: 300
+            height: 110
             bg_color: 0x1a1a1a
             radius: 10
             pad_all: 10
             widgets:
               - label:
                   text: "Wohnzimmer"
-                  text_font: roboto_bold_24
+                  text_font: roboto_bold_18
                   align: TOP_LEFT
               - label:
                   id: wz_current_label
                   text: "-- C"
-                  text_font: roboto_bold_32
+                  text_font: roboto_bold_24
                   align: CENTER
               - label:
                   id: wz_target_label
                   text: "Ziel: -- C"
-                  text_font: roboto_16
+                  text_font: roboto_14
                   align: BOTTOM_MID
         
-        # Schlafzimmer
         - obj:
-            width: 460
-            height: 100
-            y: 120
+            width: 300
+            height: 110
+            y: 125
             bg_color: 0x1a1a1a
             radius: 10
             pad_all: 10
             widgets:
               - label:
                   text: "Schlafzimmer"
-                  text_font: roboto_bold_24
+                  text_font: roboto_bold_18
                   align: TOP_LEFT
               - label:
                   id: sz_current_label
                   text: "-- C"
-                  text_font: roboto_bold_32
+                  text_font: roboto_bold_24
                   align: CENTER
               - label:
                   id: sz_target_label
                   text: "Ziel: -- C"
-                  text_font: roboto_16
+                  text_font: roboto_14
                   align: BOTTOM_MID
       
       on_load:
@@ -715,33 +648,32 @@ lvgl:
             id: page_title
             text: "Heizung"
     
-    # === WETTER-SEITE ===
+    # === WETTER ===
     - id: page_weather
       bg_color: 0x000000
       pad_all: 10
-      pad_top: 50
+      pad_top: 45
       widgets:
         - obj:
-            width: 460
-            height: 200
+            width: 300
+            height: 180
             bg_color: 0x1a1a1a
             radius: 10
             pad_all: 15
             widgets:
               - label:
                   text: "Wetter"
-                  text_font: roboto_bold_32
+                  text_font: roboto_bold_24
                   align: TOP_LEFT
               - label:
                   id: weather_temp_label
                   text: "-- C"
-                  text_font: roboto_bold_32
+                  text_font: roboto_bold_24
                   align: CENTER
-                  y: 10
               - label:
                   id: weather_condition_label
                   text: "--"
-                  text_font: roboto_20
+                  text_font: roboto_16
                   align: BOTTOM_MID
       
       on_load:
