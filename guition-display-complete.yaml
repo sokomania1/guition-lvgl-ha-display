@@ -108,27 +108,27 @@ font:
   - file: "gfonts://Roboto"
     id: roboto_12
     size: 12
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
+    glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto"
     id: roboto_16
     size: 16
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
+    glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto"
     id: roboto_20
     size: 20
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
+    glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto@700"
     id: roboto_bold_24
     size: 24
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
+    glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
   
   - file: "gfonts://Roboto@700"
     id: roboto_bold_32
     size: 32
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
+    glyphs: "!\"%()+*,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/<>"
 
 # === COMMON SENSOREN ===
 text_sensor:
