@@ -3,6 +3,36 @@
 
 # Font-Definitionen (ESPHome Built-in Fonts)
 font:
+  # Material Design Icons
+  - file: "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf"
+    id: material_icons_48
+    size: 48
+    glyphs: [
+      "\U0000e3a9",  # lightbulb_outline
+      "\U0000e8ac",  # wb_sunny
+      "\U0000e2bf",  # ac_unit (heating)
+      "\U0000e8b5",  # wb_cloudy
+      "\U0000e429",  # home
+      "\U0000e5d2",  # power_settings_new
+      "\U0000e5cd",  # brightness_high
+      "\U0000e5cc",  # brightness_low
+    ]
+  
+  - file: "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf"
+    id: material_icons_24
+    size: 24
+    glyphs: [
+      "\U0000e3a9",  # lightbulb_outline
+      "\U0000e8ac",  # wb_sunny
+      "\U0000e2bf",  # ac_unit
+      "\U0000e8b5",  # wb_cloudy
+      "\U0000e896",  # arrow_back
+      "\U0000e5cc",  # brightness_low
+      "\U0000e5cd",  # brightness_high
+      "\U0000e894",  # arrow_forward
+    ]
+  
+  # Roboto normale Schriftarten
   - file: "gfonts://Roboto"
     id: roboto_12
     size: 12
@@ -11,20 +41,31 @@ font:
   - file: "gfonts://Roboto"
     id: roboto_16
     size: 16
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️"
   
   - file: "gfonts://Roboto"
     id: roboto_20
     size: 20
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️"
   
   - file: "gfonts://Roboto"
     id: roboto_24
     size: 24
-    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️"
   
   - file: "gfonts://Roboto"
     id: roboto_32
+    size: 32
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  # Roboto Bold
+  - file: "gfonts://Roboto@700"
+    id: roboto_bold_24
+    size: 24
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️☀️🌙❄️🌧️🌨️⛅⛈️🌬️🌫️⚠️🧧"
+  
+  - file: "gfonts://Roboto@700"
+    id: roboto_bold_32
     size: 32
     glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
 
@@ -42,7 +83,7 @@ lvgl:
       border_width: 0
       radius: 8
     
-    button:  # <- KORRIGIERT: button statt btn!
+    button:
       bg_color: 0x1E1E1E
       text_color: 0xFFFFFF
       radius: 8
@@ -56,6 +97,45 @@ lvgl:
         bg_color: 0x0080FF
         text_color: 0xFFFFFF
   
+  # Top Bar (Header) - wird auf allen Seiten angezeigt
+  top_layer:
+    widgets:
+      - obj:
+          id: header_bar
+          x: 0
+          y: 0
+          width: 480
+          height: 40
+          bg_color: 0x1a1a1a
+          border_width: 0
+          pad_all: 5
+          widgets:
+            # Uhrzeit links
+            - label:
+                id: time_label
+                x: 10
+                y: 5
+                text_font: roboto_bold_24
+                text_color: 0xFFFFFF
+                text: "00:00"
+            
+            # Seitentitel mittig
+            - label:
+                id: page_title
+                align: CENTER
+                text_font: roboto_20
+                text_color: 0xAAAAAA
+                text: "💡 Lampen"
+            
+            # WiFi Signal rechts
+            - label:
+                id: wifi_label
+                x: 430
+                y: 5
+                text_font: roboto_16
+                text_color: 0xAAAAAA
+                text: "•••"
+  
   # Standard-Splash-Seite
   pages:
     - id: splash
@@ -65,3 +145,19 @@ lvgl:
             align: CENTER
             text: "Lade..."
             text_font: roboto_16
+
+# Update-Timer für Header (ersetzt on_idle)
+interval:
+  - interval: 1s
+    then:
+      - lvgl.label.update:
+          id: time_label
+          text: !lambda return id(current_time_badge).state.c_str();
+      - lvgl.label.update:
+          id: wifi_label
+          text: !lambda |-
+            int strength = (int)id(wifi_strength).state;
+            if (strength > 75) return "███";
+            if (strength > 50) return "██░";
+            if (strength > 25) return "█░░";
+            return "░░░";
