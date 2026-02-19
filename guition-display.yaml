@@ -5,6 +5,9 @@
 esphome:
   name: guition-display
   friendly_name: Guition Display
+  platformio_options:
+    board_build.flash_mode: dio
+    board_build.mcu: esp32s3
   on_boot:
     priority: 600
     then:
@@ -16,20 +19,36 @@ esphome:
       - delay: 2s
       - lvgl.page.show: ${home_page}
 
+# ESP32 Platform - MUSS vor packages kommen!
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
+      CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+
 substitutions:
   # Startseite beim Booten (änderbar: page_lights, page_heating, page_weather)
   home_page: "page_lights"
 
-# Gemeinsame Konfiguration einbinden
+# Gemeinsame Konfiguration einbinden (neue List-Syntax ab ESPHome 2026.x)
 packages:
-  device: !include devices/JC3248W535.yaml  # ✅ Korrekte Hardware
-  common: !include common.yaml              # Standard-Sensoren & Schalter
-  layout: !include layouts/480x320.yaml     # LVGL-Basis-Layout
-  
-  # Seiten (nach Bedarf hinzufügen/entfernen)
-  lights: !include pages/lights.yaml        # Licht-Steuerung
-  heating: !include pages/heating.yaml      # Heizungs-Steuerung
-  weather: !include pages/weather.yaml      # Wetter-Anzeige
+  - !include devices/JC3248W535.yaml  # ✅ Korrekte Hardware
+  - !include common.yaml              # Standard-Sensoren & Schalter
+  - !include layouts/480x320.yaml     # LVGL-Basis-Layout
+  - !include pages/lights.yaml        # Licht-Steuerung
+  - !include pages/heating.yaml       # Heizungs-Steuerung
+  - !include pages/weather.yaml       # Wetter-Anzeige
 
 # WLAN-Konfiguration
 wifi:
