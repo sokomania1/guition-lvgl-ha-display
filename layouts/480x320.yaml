@@ -1,20 +1,48 @@
 # layouts/480x320.yaml
-# Basis-Layout für 480x320 Displays
-# Vereinfachte Version ohne externe Widget-Abhängigkeiten
+# Basis-Layout für 480x320 Displays mit korrekter LVGL-Syntax
+
+# Font-Definitionen (ESPHome Built-in Fonts)
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_12
+    size: 12
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  - file: "gfonts://Roboto"
+    id: roboto_16
+    size: 16
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  - file: "gfonts://Roboto"
+    id: roboto_20
+    size: 20
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  - file: "gfonts://Roboto"
+    id: roboto_24
+    size: 24
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+  
+  - file: "gfonts://Roboto"
+    id: roboto_32
+    size: 32
+    glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
 
 lvgl:
   log_level: WARN
   
-  # Basis-Theme
+  # Standard-Font
+  default_font: roboto_16
+  
+  # Dunkles Theme
   theme:
-    # Dunkles Theme
     obj:
       bg_color: 0x000000
       text_color: 0xFFFFFF
       border_width: 0
       radius: 8
     
-    btn:
+    button:  # <- KORRIGIERT: button statt btn!
       bg_color: 0x1E1E1E
       text_color: 0xFFFFFF
       radius: 8
@@ -28,7 +56,7 @@ lvgl:
         bg_color: 0x0080FF
         text_color: 0xFFFFFF
   
-  # Standard-Seite als Fallback
+  # Standard-Splash-Seite
   pages:
     - id: splash
       skip: true
@@ -36,4 +64,4 @@ lvgl:
         - label:
             align: CENTER
             text: "Lade..."
-            text_font: unscii_8
+            text_font: roboto_16
