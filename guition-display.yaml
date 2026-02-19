@@ -1,5 +1,5 @@
 # guition-display.yaml
-# Vollständige Konfiguration (ohne packages - ESPHome 2026.2.0 Kompatibilität)
+# Vollständige Konfiguration (ESPHome 2026.2.0 kompatibel)
 
 esphome:
   name: guition-display
@@ -118,7 +118,7 @@ logger:
     component: ERROR
     lvgl: WARN
 
-# === Sensoren ===
+# === Common Sensoren ===
 binary_sensor:
   - platform: status
     name: "Status"
@@ -179,3 +179,24 @@ text_sensor:
 # === Fonts & LVGL ===
 font: !include layouts/fonts.yaml
 lvgl: !include layouts/lvgl_complete.yaml
+
+# Seiten-Sensoren
+binary_sensor: !include pages/lights_sensors.yaml
+sensor: !include pages/heating_sensors.yaml
+text_sensor: !include pages/weather_sensors.yaml
+
+# Header Update Timer
+interval:
+  - interval: 1s
+    then:
+      - lvgl.label.update:
+          id: time_label
+          text: !lambda return id(current_time_badge).state.c_str();
+      - lvgl.label.update:
+          id: wifi_label
+          text: !lambda |-
+            int strength = (int)id(wifi_strength).state;
+            if (strength > 75) return "███";
+            if (strength > 50) return "██░";
+            if (strength > 25) return "█░░";
+            return "░░░";
