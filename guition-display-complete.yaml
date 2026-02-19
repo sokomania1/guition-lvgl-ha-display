@@ -64,6 +64,7 @@ display:
     platform: mipi_spi
     model: JC3248W535
     data_rate: 40MHz
+    rotation: 90
     update_interval: never
     auto_clear_enabled: false
 
