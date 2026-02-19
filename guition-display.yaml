@@ -1,5 +1,6 @@
 # guition-display.yaml
-# Vollständige Konfiguration (ESPHome 2026.2.0 kompatibel)
+# Monolithische Konfiguration (ESPHome 2026.2.0 kompatibel)
+# Keine packages - alle direkt integriert
 
 esphome:
   name: guition-display
@@ -118,11 +119,16 @@ logger:
     component: ERROR
     lvgl: WARN
 
-# === Common Sensoren ===
+# === Fonts & LVGL ===
+font: !include layouts/fonts.yaml
+lvgl: !include layouts/lvgl_complete.yaml
+
+# === Sensoren (ALLE in einem Block!) ===
 binary_sensor:
   - platform: status
     name: "Status"
     entity_category: diagnostic
+  # Seiten-Sensoren werden in pages/*.yaml eingebunden (Teil von lvgl)
 
 sensor:
   - id: wifi_signal_db
@@ -175,15 +181,6 @@ text_sensor:
       auto time = id(ha_time).now();
       static const char * const months[] = {"Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"};
       return str_sprintf("%02d. %s %04d", time.day_of_month, months[time.month-1], time.year);
-
-# === Fonts & LVGL ===
-font: !include layouts/fonts.yaml
-lvgl: !include layouts/lvgl_complete.yaml
-
-# Seiten-Sensoren
-binary_sensor: !include pages/lights_sensors.yaml
-sensor: !include pages/heating_sensors.yaml
-text_sensor: !include pages/weather_sensors.yaml
 
 # Header Update Timer
 interval:
