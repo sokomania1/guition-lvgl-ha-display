@@ -41,14 +41,15 @@ substitutions:
   # Startseite beim Booten (änderbar: page_lights, page_heating, page_weather)
   home_page: "page_lights"
 
-# Gemeinsame Konfiguration einbinden (neue List-Syntax ab ESPHome 2026.x)
+# Gemeinsame Konfiguration einbinden
+# Dictionary-Syntax für Kompatibilität (warning ist ok, funktioniert)
 packages:
-  - !include devices/JC3248W535.yaml  # ✅ Korrekte Hardware
-  - !include common.yaml              # Standard-Sensoren & Schalter
-  - !include layouts/480x320.yaml     # LVGL-Basis-Layout
-  - !include pages/lights.yaml        # Licht-Steuerung
-  - !include pages/heating.yaml       # Heizungs-Steuerung
-  - !include pages/weather.yaml       # Wetter-Anzeige
+  device: !include devices/JC3248W535.yaml
+  common: !include common.yaml
+  layout: !include layouts/480x320.yaml
+  lights: !include pages/lights.yaml
+  heating: !include pages/heating.yaml
+  weather: !include pages/weather.yaml
 
 # WLAN-Konfiguration
 wifi:
