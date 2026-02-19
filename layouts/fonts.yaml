@@ -1,0 +1,68 @@
+# layouts/fonts.yaml
+# Font-Definitionen für LVGL
+
+# Material Design Icons
+- file: "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf"
+  id: material_icons_48
+  size: 48
+  glyphs: [
+    "\U0000e3a9",  # lightbulb_outline
+    "\U0000e8ac",  # wb_sunny
+    "\U0000e2bf",  # ac_unit (heating)
+    "\U0000e8b5",  # wb_cloudy
+    "\U0000e429",  # home
+    "\U0000e5d2",  # power_settings_new
+    "\U0000e5cd",  # brightness_high
+    "\U0000e5cc",  # brightness_low
+  ]
+
+- file: "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf"
+  id: material_icons_24
+  size: 24
+  glyphs: [
+    "\U0000e3a9",  # lightbulb_outline
+    "\U0000e8ac",  # wb_sunny
+    "\U0000e2bf",  # ac_unit
+    "\U0000e8b5",  # wb_cloudy
+    "\U0000e896",  # arrow_back
+    "\U0000e5cc",  # brightness_low
+    "\U0000e5cd",  # brightness_high
+    "\U0000e894",  # arrow_forward
+  ]
+
+# Roboto Regular
+- file: "gfonts://Roboto"
+  id: roboto_12
+  size: 12
+  glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+
+- file: "gfonts://Roboto"
+  id: roboto_16
+  size: 16
+  glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️"
+
+- file: "gfonts://Roboto"
+  id: roboto_20
+  size: 20
+  glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️"
+
+- file: "gfonts://Roboto"
+  id: roboto_24
+  size: 24
+  glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️"
+
+- file: "gfonts://Roboto"
+  id: roboto_32
+  size: 32
+  glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
+
+# Roboto Bold
+- file: "gfonts://Roboto@700"
+  id: roboto_bold_24
+  size: 24
+  glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/☼💡🌡️☁️☀️🌙❄️🌧️🌨️⛅⛈️🌬️🌫️⚠️🧧"
+
+- file: "gfonts://Roboto@700"
+  id: roboto_bold_32
+  size: 32
+  glyphs: "!\"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyzäöüÄÖÜß@&/"
