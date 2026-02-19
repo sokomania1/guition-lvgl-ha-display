@@ -1,21 +1,17 @@
 # JC3248W535.yaml
 # ✅ KORREKTE Hardware-Konfiguration für Guition ESP32-S3 3.5" Display
-# Nutzt MIPI SPI Display-Treiber (nicht ili9xxx!)
-# ESP32-Platform ist jetzt in guition-display.yaml definiert!
+# ESP32-Platform & PSRAM sind in guition-display.yaml definiert!
 
-# Quad SPI für Display
 spi:
   - type: quad
     clk_pin: 47
     data_pins: [21, 48, 40, 39]
 
-# I2C für Touchscreen
 i2c:
   - sda: 4
     scl: 8
-    scan: true  # Zeigt erkannte Geräte im Log
+    scan: true
 
-# Backlight PWM
 output:
   - id: gpio_backlight_pwm
     platform: ledc
@@ -30,7 +26,6 @@ light:
     restore_mode: ALWAYS_ON
     default_transition_length: 250ms
 
-# Display: MIPI SPI Treiber (NICHT ili9xxx!)
 display:
   - id: main_display
     platform: mipi_spi
@@ -39,16 +34,6 @@ display:
     update_interval: never
     auto_clear_enabled: false
 
-# Touchscreen: AXS15231 (NICHT gt911!)
 touchscreen:
   - id: main_touchscreen
     platform: axs15231
-    # Debug-Ausgabe für Kalibrierung (bei Bedarf aktivieren)
-    # on_touch:
-    #   - lambda: |-
-    #         ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-    #           touch.x,
-    #           touch.y,
-    #           touch.x_raw,
-    #           touch.y_raw
-    #         );
