@@ -8,6 +8,12 @@ esphome:
 web_server:
   port: 80
 
+# Time Sensor für Uhrzeit
+time:
+  - platform: homeassistant
+    id: ha_time
+    timezone: Europe/Berlin
+
 # Standard-Sensoren und Schalter
 switch:
   - platform: restart
@@ -26,15 +32,19 @@ sensor:
     platform: wifi_signal
     update_interval: 60s
     entity_category: diagnostic
-
-  - id: wifi_signal_strength
+  
+  # WiFi Stärke in Prozent
+  - platform: template
     name: "WiFi Strength"
-    platform: copy
-    source_id: wifi_signal_db
-    filters:
-      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    id: wifi_strength
     unit_of_measurement: "%"
-    entity_category: diagnostic
+    update_interval: 60s
+    lambda: |-
+      if (id(wifi_signal_db).state) {
+        return min(max(2 * (id(wifi_signal_db).state + 100.0), 0.0), 100.0);
+      } else {
+        return 0.0;
+      }
 
 # Netzwerk-Informationen
 text_sensor:
@@ -42,12 +52,33 @@ text_sensor:
     ip_address:
       name: "IP Address"
       entity_category: diagnostic
+      id: ip_address
     ssid:
       name: "Connected SSID"
       entity_category: diagnostic
+      id: connected_ssid
     mac_address:
       name: "Mac Address"
       entity_category: diagnostic
+      id: mac_address
+  
+  # Zeit-Sensoren für Display
+  - platform: template
+    name: "Current Time Badge"
+    id: current_time_badge
+    update_interval: 1s
+    lambda: |-
+      auto time = id(ha_time).now();
+      return str_sprintf("%02d:%02d", time.hour, time.minute);
+  
+  - platform: template
+    name: "Current Date"
+    id: current_date
+    update_interval: 60s
+    lambda: |-
+      auto time = id(ha_time).now();
+      static const char * const months[] = {"Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"};
+      return str_sprintf("%02d. %s %04d", time.day_of_month, months[time.month-1], time.year);
 
 # Globale Variable für Home Assistant IP
 globals:
